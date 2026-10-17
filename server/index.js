@@ -175,7 +175,7 @@ server.registerTool(
   "get_channel_latest_videos",
   {
     title: "Get Channel Latest Videos",
-    description: "Use this when the user asks what a YouTube channel has posted recently, or wants a channel's details (name, description, links) with its newest uploads. Accepts an @handle, channel URL, or UC... ID. For a channel's full upload history use list_channel_videos; to find a topic inside one channel use search_channel_videos.",
+    description: "Use this when the user asks what a YouTube channel has posted recently, or wants a channel's details (name, handle, description, subscribers) with its 15 newest uploads. Accepts an @handle, channel URL, or UC... ID. For a channel's full upload history use list_channel_videos; to find a topic inside one channel use search_channel_videos.",
     inputSchema: { channel: z.string().describe("Channel @handle, URL, or UC... id") },
     annotations: readOnly,
   },
