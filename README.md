@@ -380,7 +380,7 @@ Search YouTube for videos or channels, paginated.
 
 **Cost:** 1 credit/page.
 
-### 4. `get_channel_latest_videos` <sub>· **FREE**</sub>
+### 4. `get_channel_latest_videos`
 
 Get a channel's metadata plus its most recent uploads.
 
@@ -388,7 +388,7 @@ Get a channel's metadata plus its most recent uploads.
 |---|---|---|---|
 | `channel` | string | **required** | `@handle`, channel URL, or `UC…` channel ID |
 
-**Cost:** Free.
+**Cost:** 1 credit.
 
 ### 5. `search_channel_videos`
 
@@ -455,7 +455,7 @@ Check the remaining credit balance for your key/account. No parameters.
 | **Annual** | $4.50/mo ($54/yr) | 1,000 credits/month | 300 req/min |
 
 - **1 credit** = 1 successful request. Failed/rate-limited requests don't consume credits.
-- `get_channel_latest_videos` is always free.
+- `get_credits` is the only free tool.
 - [Manage billing →](https://getyoutubetranscript.com/dashboard)
 
 ---

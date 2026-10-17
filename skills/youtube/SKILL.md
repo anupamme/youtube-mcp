@@ -22,7 +22,7 @@ This plugin bundles the hosted `youtube-transcript` MCP server (`https://getyout
 - Pastes a YouTube link or 11-character video ID, or asks what a video says → `get_youtube_transcript`
 - Asks which caption languages a video has, or wants a non-English transcript and you don't know if it exists → `get_transcript_languages` (1 credit; skip it for an ordinary English request)
 - Wants to find videos or channels on a topic → `search_youtube`
-- Names a creator, pastes an `@handle` or channel URL, or asks what a channel posted recently → `get_channel_latest_videos` (free)
+- Names a creator, pastes an `@handle` or channel URL, or asks what a channel posted recently → `get_channel_latest_videos`
 - Wants to search inside one channel → `search_channel_videos`
 - Wants a channel's full upload history → `list_channel_videos`
 - Pastes a playlist link, or wants every video in a series or course → `list_playlist_videos`
@@ -41,7 +41,7 @@ This plugin bundles the hosted `youtube-transcript` MCP server (`https://getyout
 | `get_youtube_transcript` | 1 credit | `video_url` (required), `language` (default `en`), `send_metadata` (default `true`), `timestamps` (default `false`) |
 | `get_transcript_languages` | 1 credit | `video_url` (required) |
 | `search_youtube` | 1 credit per page | `query`, `search_type` (`video` or `channel`), `continuation` |
-| `get_channel_latest_videos` | Free | `channel` (required): `@handle`, URL or `UC...` ID |
+| `get_channel_latest_videos` | 1 credit | `channel` (required): `@handle`, URL or `UC...` ID |
 | `search_channel_videos` | 1 credit per page | `channel`, `query`, `continuation` |
 | `list_channel_videos` | 1 credit per page | `channel`, `continuation` |
 | `list_playlist_videos` | 1 credit per page | `playlist` (URL or ID), `continuation` |
@@ -54,7 +54,7 @@ This plugin bundles the hosted `youtube-transcript` MCP server (`https://getyout
 - **Timestamps are opt-in.** By default `get_youtube_transcript` returns the full spoken text as one block. Set `timestamps` to `true` when the user wants timestamps, wants to find or quote where something is said, or wants a timeline or chapter breakdown: each caption line then starts with its `[m:ss]` time. Same credit cost.
 - **Search returns metadata only.** Pick the few best results, then fetch transcripts for those. Do not transcribe every result.
 - **Paginate with `continuation`.** Pass the opaque token from the previous response to get the next page. Never build one yourself, and stop paging once you have enough.
-- **Prefer the free tool for recent uploads.** Use `get_channel_latest_videos` before `list_channel_videos` when recent videos are enough. No need to resolve an `@handle` first.
+- **Prefer the cheaper tool for recent uploads.** Use `get_channel_latest_videos` before `list_channel_videos` when recent videos are enough. No need to resolve an `@handle` first.
 - **Read the metadata header.** `## Language` shows the caption language actually returned, with `(requested xx)` when YouTube didn't have the one asked for: say so instead of presenting it as a translation. `## Captions: auto-generated` means speech recognition, so names and technical terms may be misheard; flag that before quoting them.
 - **Missing transcripts.** A 404 usually means the video has no captions, or is private, age-restricted or region-locked. Tell the user and do not retry in a loop.
 - **Long videos.** For a multi-hour video, summarize in sections rather than loading the whole transcript into one answer.
