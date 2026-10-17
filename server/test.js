@@ -20,6 +20,7 @@ console.log("tools:", names.join(", "));
 assert.deepEqual(names, [
   "get_channel_latest_videos",
   "get_credits",
+  "get_transcript_languages",
   "get_youtube_transcript",
   "list_channel_videos",
   "list_playlist_videos",
@@ -30,6 +31,10 @@ assert.deepEqual(names, [
 const transcriptTool = tools.find((t) => t.name === "get_youtube_transcript");
 assert.ok(transcriptTool.inputSchema.properties.timestamps, "get_youtube_transcript should accept timestamps");
 console.log("timestamps input ok");
+
+const languagesTool = tools.find((t) => t.name === "get_transcript_languages");
+assert.deepEqual(languagesTool.inputSchema.required, ["video_url"], "get_transcript_languages needs only a video");
+console.log("get_transcript_languages schema ok");
 
 const credits = await client.callTool({ name: "get_credits", arguments: {} });
 assert.equal(credits.isError, undefined, credits.content[0].text);
@@ -45,6 +50,12 @@ if (process.env.GYT_RUN_PAID_TESTS === "1") {
   assert.equal(transcript.isError, undefined, transcript.content[0].text);
   assert.match(transcript.content[0].text, /## Language: en\n## Captions: auto-generated/);
   console.log("get_youtube_transcript metadata ok");
+
+  // 1 credit.
+  const languages = await client.callTool({ name: "get_transcript_languages", arguments: { video_url: "ZXsQAXx_ao0" } });
+  assert.equal(languages.isError, undefined, languages.content[0].text);
+  assert.ok(JSON.parse(languages.content[0].text).languages.length > 0, "expected at least one caption language");
+  console.log("get_transcript_languages ok");
 }
 
 const bad = await client.callTool({ name: "search_youtube", arguments: {} });

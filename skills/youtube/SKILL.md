@@ -9,7 +9,7 @@ metadata:
 
 # YouTube (getyoutubetranscript.com)
 
-This plugin bundles the hosted `youtube-transcript` MCP server (`https://getyoutubetranscript.com/api/mcp`). Its 7 tools are the only data path for answering the user: do not scrape youtube.com and do not call the REST API directly from this skill. If the user wants code (an app, script, or pipeline that fetches YouTube data), use the `youtube-transcript-api` skill instead.
+This plugin bundles the hosted `youtube-transcript` MCP server (`https://getyoutubetranscript.com/api/mcp`). Its 8 tools are the only data path for answering the user: do not scrape youtube.com and do not call the REST API directly from this skill. If the user wants code (an app, script, or pipeline that fetches YouTube data), use the `youtube-transcript-api` skill instead.
 
 **Authentication.** Connect with OAuth (the client prompts the user to sign in on first use) or send an API key as a Bearer token. If a tool call fails with an auth error, ask the user to finish the sign-in prompt or check their key in the [dashboard](https://getyoutubetranscript.com/dashboard).
 
@@ -20,6 +20,7 @@ This plugin bundles the hosted `youtube-transcript` MCP server (`https://getyout
 **Use when the user:**
 
 - Pastes a YouTube link or 11-character video ID, or asks what a video says → `get_youtube_transcript`
+- Asks which caption languages a video has, or wants a non-English transcript and you don't know if it exists → `get_transcript_languages` (1 credit; skip it for an ordinary English request)
 - Wants to find videos or channels on a topic → `search_youtube`
 - Names a creator, pastes an `@handle` or channel URL, or asks what a channel posted recently → `get_channel_latest_videos` (free)
 - Wants to search inside one channel → `search_channel_videos`
@@ -38,6 +39,7 @@ This plugin bundles the hosted `youtube-transcript` MCP server (`https://getyout
 | Tool | Cost | Key parameters |
 |---|---|---|
 | `get_youtube_transcript` | 1 credit | `video_url` (required), `language` (default `en`), `send_metadata` (default `true`), `timestamps` (default `false`) |
+| `get_transcript_languages` | 1 credit | `video_url` (required) |
 | `search_youtube` | 1 credit per page | `query`, `search_type` (`video` or `channel`), `continuation` |
 | `get_channel_latest_videos` | Free | `channel` (required): `@handle`, URL or `UC...` ID |
 | `search_channel_videos` | 1 credit per page | `channel`, `query`, `continuation` |

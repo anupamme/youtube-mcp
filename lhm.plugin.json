@@ -47,6 +47,22 @@
       }
     },
     {
+      "name": "get_transcript_languages",
+      "description": "Use this when the user asks which caption or subtitle languages a YouTube video has, or before requesting a transcript in a non-English language when you don't know whether the video offers it. Returns each language with its code (pass it as `language` to get_youtube_transcript), whether it is creator-uploaded or auto-generated, and the default language. An empty list means the video has captions turned off. Costs 1 credit. Not needed for an ordinary transcript request: get_youtube_transcript already reports which language it returned.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "video_url": {
+            "type": "string",
+            "description": "YouTube URL (full or short) or an 11-character video ID"
+          }
+        },
+        "required": [
+          "video_url"
+        ]
+      }
+    },
+    {
       "name": "search_youtube",
       "description": "Use this when the user wants to find YouTube videos or channels on a topic, for example 'find lectures on linear algebra' or 'popular videos about the Apollo missions', before reading or comparing them. Returns each result's title, video ID, link, channel, views, length, and upload date. Pass `continuation` from a previous response for the next page. Does not return what a video says: call get_youtube_transcript with a result's video ID for that.",
       "inputSchema": {

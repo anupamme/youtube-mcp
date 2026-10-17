@@ -22,7 +22,7 @@
   <a href="./LICENSE"><img src="https://img.shields.io/badge/License-MIT-4CAF50?style=for-the-badge" alt="MIT License"/></a>
 </p>
 
-Seven tools, one hosted endpoint, no local install, for Claude, ChatGPT, Cursor, VS Code, Windsurf, and 15+ other MCP-compatible clients.
+Eight tools, one hosted endpoint, no local install, for Claude, ChatGPT, Cursor, VS Code, Windsurf, and 15+ other MCP-compatible clients.
 
 ```
 https://getyoutubetranscript.com/api/mcp
@@ -60,7 +60,7 @@ This repo root is also an [Agent Plugins 1.0.0](https://agent-plugins.org/specif
 ```text
 plugin.json                # plugin manifest
 mcp.json                   # hosted MCP server (streamable-http, OAuth, no key in the file)
-skills/youtube/SKILL.md    # when and how to use the 7 tools
+skills/youtube/SKILL.md    # when and how to use the 8 tools
 ```
 
 In VS Code, run **Chat: Install Plugin From Source** and paste `https://github.com/tubeagentkit/youtube-mcp`. Other clients that support Agent Plugins can point at this repo or a local clone. For Cursor there is a separate [plugin repo](https://github.com/tubeagentkit/youtube-transcript-cursor-plugin).
@@ -292,7 +292,7 @@ The agent calls `get_youtube_transcript` and summarizes the result. If you conne
 
 ## Run locally (stdio)
 
-Prefer a local process? [`server/`](./server) is an open-source stdio MCP server with the same 7 tools, built on the official MCP TypeScript SDK. It calls the public [REST API](https://getyoutubetranscript.com/docs) with your API key.
+Prefer a local process? [`server/`](./server) is an open-source stdio MCP server with the same 8 tools, built on the official MCP TypeScript SDK. It calls the public [REST API](https://getyoutubetranscript.com/docs) with your API key.
 
 ```sh
 git clone https://github.com/tubeagentkit/youtube-mcp
@@ -341,7 +341,7 @@ Both methods issue a token scoped and audience-bound to this specific MCP server
 
 ## Available Tools
 
-All seven tools are exposed automatically once you connect. **1 credit = 1 successful request.** Failed or rate-limited calls never consume credits.
+All eight tools are exposed automatically once you connect. **1 credit = 1 successful request.** Failed or rate-limited calls never consume credits.
 
 ### 1. `get_youtube_transcript`
 
@@ -356,7 +356,19 @@ Fetch the full transcript for a YouTube video, plus its title/author/thumbnail m
 
 **Cost:** 1 credit, with or without `timestamps`.
 
-### 2. `search_youtube`
+### 2. `get_transcript_languages`
+
+List the caption languages a video offers, creator-uploaded or auto-generated, and which one a default request returns.
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `video_url` | string | **required** | YouTube URL (full or short) or an 11-character video ID |
+
+An empty list means the video has captions turned off. Not needed for an ordinary transcript request: `get_youtube_transcript` already reports the language it returned.
+
+**Cost:** 1 credit.
+
+### 3. `search_youtube`
 
 Search YouTube for videos or channels, paginated.
 
@@ -368,7 +380,7 @@ Search YouTube for videos or channels, paginated.
 
 **Cost:** 1 credit/page.
 
-### 3. `get_channel_latest_videos` <sub>· **FREE**</sub>
+### 4. `get_channel_latest_videos` <sub>· **FREE**</sub>
 
 Get a channel's metadata plus its most recent uploads.
 
@@ -378,7 +390,7 @@ Get a channel's metadata plus its most recent uploads.
 
 **Cost:** Free.
 
-### 4. `search_channel_videos`
+### 5. `search_channel_videos`
 
 Search within one specific channel's videos.
 
@@ -390,7 +402,7 @@ Search within one specific channel's videos.
 
 **Cost:** 1 credit/page.
 
-### 5. `list_channel_videos`
+### 6. `list_channel_videos`
 
 List every video a channel has ever uploaded (the full `/videos` tab, not just recent ones).
 
@@ -401,7 +413,7 @@ List every video a channel has ever uploaded (the full `/videos` tab, not just r
 
 **Cost:** 1 credit/page.
 
-### 6. `list_playlist_videos`
+### 7. `list_playlist_videos`
 
 Get every video in a YouTube playlist.
 
@@ -412,7 +424,7 @@ Get every video in a YouTube playlist.
 
 **Cost:** 1 credit/page.
 
-### 7. `get_credits` <sub>· **FREE**</sub>
+### 8. `get_credits` <sub>· **FREE**</sub>
 
 Check the remaining credit balance for your key/account. No parameters.
 
@@ -496,13 +508,13 @@ hosted endpoint. The hosted endpoint and the REST API behind both are run by
 getyoutubetranscript.com and are not open source. To check either one yourself:
 
 - **Run the local server's live test** — `GYT_API_KEY=sk_live_... npm test --prefix server`
-  starts `server/index.js` over stdio, lists all 7 tools, and calls the free ones.
+  starts `server/index.js` over stdio, lists all 8 tools, and calls the free ones.
 - **Run [`verify.js`](./verify.js) against the hosted endpoint** — zero dependencies, zero auth required:
   ```sh
   node verify.js
   ```
   It performs the real MCP handshake (`initialize` then `tools/list`) against the live
-  endpoint and prints the server's actual response, including all 7 real tool schemas.
+  endpoint and prints the server's actual response, including all 8 real tool schemas.
   Tool *discovery* is public; only tool *calls* require an API key or OAuth token (see
   [Authentication](#authentication)).
 - **Independently verified by four third-party MCP directories**, each of which connected

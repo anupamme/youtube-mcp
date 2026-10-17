@@ -140,6 +140,20 @@ server.registerTool(
 );
 
 server.registerTool(
+  "get_transcript_languages",
+  {
+    title: "Get Transcript Languages",
+    description:
+      "Use this when the user asks which caption or subtitle languages a YouTube video has, or before requesting a transcript in a non-English language when you don't know whether the video offers it. Returns each language with its code (pass it as `language` to get_youtube_transcript), whether it is creator-uploaded or auto-generated, and the default language. An empty list means the video has captions turned off. Costs 1 credit. Not needed for an ordinary transcript request: get_youtube_transcript already reports which language it returned.",
+    inputSchema: {
+      video_url: z.string().describe("YouTube URL (full or short) or an 11-character video ID"),
+    },
+    annotations: readOnly,
+  },
+  tool(async ({ video_url }) => json(await apiGet("/transcript/languages", { v: video_url })))
+);
+
+server.registerTool(
   "search_youtube",
   {
     title: "Search YouTube",
