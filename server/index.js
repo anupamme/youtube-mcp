@@ -114,6 +114,18 @@ const continuationField = z
   .optional()
   .describe("Opaque token from a previous response - fetches the next page. Do not construct this yourself.");
 
+/** Inputs of every paged channel tool: the first page takes `channel`, later pages only `continuation`. */
+const channelPageInput = {
+  channel: z.string().optional().describe("Channel @handle, URL, or UC... id. Required unless `continuation` is set."),
+  continuation: continuationField,
+};
+
+/** One page of a channel list. `firstPageParams` (tab, sort) only apply to a first page: a continuation already carries them. */
+async function channelPage(path, { channel, continuation }, firstPageParams = {}) {
+  if (!continuation && !channel) return errorResult("BAD_REQUEST", "Provide either channel or continuation.");
+  return json(await apiGet(path, continuation ? { continuation } : { channel, ...firstPageParams }));
+}
+
 const server = new McpServer({ name: "youtube-mcp", version: "1.3.0" });
 
 server.registerTool(
@@ -206,17 +218,70 @@ server.registerTool(
   "list_channel_videos",
   {
     title: "List Channel Videos",
-    description: "Use this when the user wants to browse a YouTube channel's uploads beyond its latest videos, for example to see a creator's older episodes or find a video they remember from that channel. Returns the channel's uploads (its Videos tab) one page at a time. Pass `continuation` from a previous response for the next page.",
+    description: "Use this when the user wants to browse a YouTube channel's uploads beyond its latest videos, for example to see a creator's older episodes, its most popular videos, its Shorts, or its past live streams. Returns the channel's uploads one page at a time. `tab` picks Videos (default), Shorts or Live; `sort` picks latest (default), popular or oldest. Both apply to the first page only. Pass `continuation` from a previous response for the next page.",
     inputSchema: {
-      channel: z.string().optional().describe("Channel @handle, URL, or UC... id. Required unless `continuation` is set."),
-      continuation: continuationField,
+      ...channelPageInput,
+      tab: z.enum(["videos", "shorts", "streams"]).optional().describe("'videos' (default), 'shorts', or 'streams' (the Live tab)."),
+      sort: z.enum(["latest", "popular", "oldest"]).optional().describe("'latest' (default), 'popular', or 'oldest'."),
     },
     annotations: readOnly,
   },
-  tool(async ({ channel, continuation }) => {
-    if (!continuation && !channel) return errorResult("BAD_REQUEST", "Provide either channel or continuation.");
-    return json(await apiGet("/channel/videos", continuation ? { continuation } : { channel }));
-  })
+  tool(({ tab, sort, ...page }) => channelPage("/channel/videos", page, { tab, sort }))
+);
+
+server.registerTool(
+  "list_channel_playlists",
+  {
+    title: "List Channel Playlists",
+    description: "Use this when the user wants to see the playlists a YouTube channel has published, for example a creator's course series or show seasons. Returns each playlist's id, title, link and video count, one page at a time. Pass a playlist's id to list_playlist_videos to see its videos. Pass `continuation` from a previous response for the next page.",
+    inputSchema: channelPageInput,
+    annotations: readOnly,
+  },
+  tool((page) => channelPage("/channel/playlists", page))
+);
+
+server.registerTool(
+  "list_channel_posts",
+  {
+    title: "List Channel Posts",
+    description: "Use this when the user wants a YouTube channel's community posts: announcements, polls and updates a creator posts outside of videos. Returns each post's text, links, likes, comments and attached image, one page at a time. Pass `continuation` from a previous response for the next page.",
+    inputSchema: channelPageInput,
+    annotations: readOnly,
+  },
+  tool((page) => channelPage("/channel/posts", page))
+);
+
+server.registerTool(
+  "get_channel_banner",
+  {
+    title: "Get Channel Banner",
+    description: "Use this when the user wants a YouTube channel's banner or profile picture, for example to download the artwork or check how a channel presents itself. Accepts an @handle, channel URL, or UC... ID. Returns the uncropped banner URL, every crop size YouTube serves, and the avatar; has_banner is false when the channel has none.",
+    inputSchema: { channel: z.string().describe("Channel @handle, URL, or UC... id") },
+    annotations: readOnly,
+  },
+  tool(async ({ channel }) => json(await apiGet("/channel/banner", { channel })))
+);
+
+server.registerTool(
+  "get_related_videos",
+  {
+    title: "Get Related Videos",
+    description: "Use this when the user wants videos similar to one they shared, or asks 'what else should I watch' after a video. Returns the videos YouTube suggests next to it, each with title, video ID, link, channel, views, age and length. Pass a result's video ID to get_youtube_transcript for what it says.",
+    inputSchema: { video_url: z.string().describe("YouTube URL (full or short) or an 11-character video ID") },
+    annotations: readOnly,
+  },
+  tool(async ({ video_url }) => json(await apiGet("/video/related", { v: video_url })))
+);
+
+server.registerTool(
+  "get_video_dislikes",
+  {
+    title: "Get Video Dislikes",
+    description: "Use this when the user asks how many dislikes a YouTube video has, or how well liked it is. YouTube no longer publishes dislikes, so this returns estimates from Return YouTube Dislike: likes, dislikes, a star rating and the view count. Say that the numbers are estimates.",
+    inputSchema: { video_url: z.string().describe("YouTube URL (full or short) or an 11-character video ID") },
+    annotations: readOnly,
+  },
+  tool(async ({ video_url }) => json(await apiGet("/video/dislikes", { v: video_url })))
 );
 
 server.registerTool(

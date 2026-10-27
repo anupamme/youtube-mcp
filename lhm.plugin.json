@@ -128,20 +128,122 @@
     },
     {
       "name": "list_channel_videos",
-      "description": "Use this when the user wants to browse a YouTube channel's uploads beyond its latest videos, for example to see a creator's older episodes or find a video they remember from that channel. Returns the channel's uploads (its Videos tab) one page at a time. Pass `continuation` from a previous response for the next page.",
+      "description": "Use this when the user wants to browse a YouTube channel's uploads beyond its latest videos, for example to see a creator's older episodes, its most popular videos, its Shorts, or its past live streams. Returns the channel's uploads one page at a time. `tab` picks Videos (default), Shorts or Live; `sort` picks latest (default), popular or oldest. Both apply to the first page only. Pass `continuation` from a previous response for the next page.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "channel": {
+            "description": "Channel @handle, URL, or UC... id. Required unless `continuation` is set.",
+            "type": "string"
+          },
+          "continuation": {
+            "description": "Opaque token from a previous response - fetches the next page.",
+            "type": "string"
+          },
+          "tab": {
+            "description": "'videos' (default), 'shorts', or 'streams' (the Live tab).",
+            "type": "string",
+            "enum": [
+              "videos",
+              "shorts",
+              "streams"
+            ]
+          },
+          "sort": {
+            "description": "'latest' (default), 'popular', or 'oldest'.",
+            "type": "string",
+            "enum": [
+              "latest",
+              "popular",
+              "oldest"
+            ]
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "list_channel_playlists",
+      "description": "Use this when the user wants to see the playlists a YouTube channel has published, for example a creator's course series or show seasons. Returns each playlist's id, title, link and video count, one page at a time. Pass a playlist's id to list_playlist_videos to see its videos. Pass `continuation` from a previous response for the next page.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "channel": {
+            "description": "Channel @handle, URL, or UC... id. Required unless `continuation` is set.",
+            "type": "string"
+          },
+          "continuation": {
+            "description": "Opaque token from a previous response - fetches the next page.",
+            "type": "string"
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "list_channel_posts",
+      "description": "Use this when the user wants a YouTube channel's community posts: announcements, polls and updates a creator posts outside of videos. Returns each post's text, links, likes, comments and attached image, one page at a time. Pass `continuation` from a previous response for the next page.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "channel": {
+            "description": "Channel @handle, URL, or UC... id. Required unless `continuation` is set.",
+            "type": "string"
+          },
+          "continuation": {
+            "description": "Opaque token from a previous response - fetches the next page.",
+            "type": "string"
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "get_related_videos",
+      "description": "Use this when the user wants videos similar to one they shared, or asks 'what else should I watch' after a video. Returns the videos YouTube suggests next to it, each with title, video ID, link, channel, views, age and length. Pass a result's video ID to get_youtube_transcript for what it says.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "video_url": {
+            "type": "string",
+            "description": "YouTube URL (full or short) or an 11-character video ID"
+          }
+        },
+        "required": [
+          "video_url"
+        ]
+      }
+    },
+    {
+      "name": "get_channel_banner",
+      "description": "Use this when the user wants a YouTube channel's banner or profile picture, for example to download the artwork or check how a channel presents itself. Accepts an @handle, channel URL, or UC... ID. Returns the uncropped banner URL, every crop size YouTube serves, and the avatar; has_banner is false when the channel has none.",
       "inputSchema": {
         "type": "object",
         "properties": {
           "channel": {
             "type": "string",
-            "description": "Channel @handle, URL, or UC... id. Required unless `continuation` is set."
-          },
-          "continuation": {
-            "type": "string",
-            "description": "Opaque token from a previous response - fetches the next page."
+            "description": "Channel @handle, URL, or UC... id"
           }
         },
-        "required": []
+        "required": [
+          "channel"
+        ]
+      }
+    },
+    {
+      "name": "get_video_dislikes",
+      "description": "Use this when the user asks how many dislikes a YouTube video has, or how well liked it is. YouTube no longer publishes dislikes, so this returns estimates from Return YouTube Dislike: likes, dislikes, a star rating and the view count. Say that the numbers are estimates.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "video_url": {
+            "type": "string",
+            "description": "YouTube URL (full or short) or an 11-character video ID"
+          }
+        },
+        "required": [
+          "video_url"
+        ]
       }
     },
     {

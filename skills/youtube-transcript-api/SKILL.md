@@ -47,7 +47,12 @@ If the user has no key, set one up in the conversation instead of sending them t
 | `/batch` | `id`, `offset`, `limit` (max 50) | `status` (`queued`/`processing`/`completed`), counts, `credits_charged`, `items` (transcript fields or `error_code`), `next_offset` |
 | `/search` | `q`, `type` (`video` or `channel`), `limit`, `country`, `language`; or `page_token` alone for the next page | `video_results` plus `continuation_token` (send it back as `page_token`) |
 | `/channel/latest` | `channel` (@handle, URL, or `UC...` ID) | channel metadata and its newest uploads |
-| `/channel/videos` | `channel` or `continuation` | every upload, paginated |
+| `/channel/videos` | `channel` or `continuation`; optional `tab` (`videos`, `shorts`, `streams`) and `sort` (`latest`, `popular`, `oldest`) on a first page | a channel's uploads, Shorts or live streams, paginated |
+| `/channel/playlists` | `channel` or `continuation` | the channel's playlists (`id`, `title`, `video_count`), paginated |
+| `/channel/posts` | `channel` or `continuation` | the channel's community posts, paginated |
+| `/channel/banner` | `channel` | `banner` (`original`, `largest`, `sizes`), `avatar`, `has_banner` |
+| `/video/related` | `v` | `related`: the videos YouTube suggests next to the video |
+| `/video/dislikes` | `v` | estimated `likes`, `dislikes`, `rating`, `view_count` (`estimated` is always true) |
 | `/channel/search` | `channel` + `q`, or `continuation` | videos inside one channel matching `q` |
 | `/playlist` | `list` (playlist ID or URL) or `continuation` | `videos`, `has_more`, `continuation_token` |
 | `/resolve` | `handle` | channel ID for an @handle or URL |
@@ -74,7 +79,7 @@ Success: `{"success": true, "data": {...}}`. Failure: `{"success": false, "code"
 
 ## Pagination
 
-`/playlist`, `/channel/videos`, and `/channel/search` return `continuation_token`. Pass it back as `continuation` (and nothing else) to get the next page, until `has_more` is false. `/search` uses the same token but takes it as `page_token`. Tokens are short opaque handles (`c_...`) that expire after 24 hours: never build or edit one, and don't store them for later runs.
+`/playlist`, `/channel/videos`, `/channel/playlists`, `/channel/posts`, and `/channel/search` return `continuation_token`. Pass it back as `continuation` (and nothing else) to get the next page, until `has_more` is false. `/search` uses the same token but takes it as `page_token`. Tokens are short opaque handles (`c_...`) that expire after 24 hours: never build or edit one, and don't store them for later runs.
 
 If the requested `language` has no captions, `/transcript` may fall back to another available language: `language_code` then differs from `requested_language`, so check it before assuming you got the one you asked for. `caption_type: "auto"` means YouTube speech recognition (names and terms can be misheard).
 

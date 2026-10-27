@@ -18,10 +18,15 @@ const { tools } = await client.listTools();
 const names = tools.map((t) => t.name).sort();
 console.log("tools:", names.join(", "));
 assert.deepEqual(names, [
+  "get_channel_banner",
   "get_channel_latest_videos",
   "get_credits",
+  "get_related_videos",
   "get_transcript_languages",
+  "get_video_dislikes",
   "get_youtube_transcript",
+  "list_channel_playlists",
+  "list_channel_posts",
   "list_channel_videos",
   "list_playlist_videos",
   "search_channel_videos",
@@ -35,6 +40,11 @@ console.log("timestamps input ok");
 const languagesTool = tools.find((t) => t.name === "get_transcript_languages");
 assert.deepEqual(languagesTool.inputSchema.required, ["video_url"], "get_transcript_languages needs only a video");
 console.log("get_transcript_languages schema ok");
+
+const channelVideosTool = tools.find((t) => t.name === "list_channel_videos");
+assert.deepEqual(channelVideosTool.inputSchema.properties.tab.enum, ["videos", "shorts", "streams"]);
+assert.deepEqual(channelVideosTool.inputSchema.properties.sort.enum, ["latest", "popular", "oldest"]);
+console.log("list_channel_videos tab and sort ok");
 
 const credits = await client.callTool({ name: "get_credits", arguments: {} });
 assert.equal(credits.isError, undefined, credits.content[0].text);
@@ -56,10 +66,31 @@ if (process.env.GYT_RUN_PAID_TESTS === "1") {
   assert.equal(languages.isError, undefined, languages.content[0].text);
   assert.ok(JSON.parse(languages.content[0].text).languages.length > 0, "expected at least one caption language");
   console.log("get_transcript_languages ok");
+
+  // 1 credit each.
+  const shorts = await client.callTool({ name: "list_channel_videos", arguments: { channel: "@veritasium", tab: "shorts", sort: "popular" } });
+  assert.equal(shorts.isError, undefined, shorts.content[0].text);
+  assert.ok(JSON.parse(shorts.content[0].text).videos.length > 0, "expected Shorts");
+  console.log("list_channel_videos shorts ok");
+
+  for (const [name, args, key] of [
+    ["list_channel_playlists", { channel: "@veritasium" }, "playlists"],
+    ["list_channel_posts", { channel: "@veritasium" }, "posts"],
+    ["get_related_videos", { video_url: "ZXsQAXx_ao0" }, "related"],
+    ["get_video_dislikes", { video_url: "dQw4w9WgXcQ" }, "dislikes"],
+    ["get_channel_banner", { channel: "@veritasium" }, "has_banner"],
+  ]) {
+    const result = await client.callTool({ name, arguments: args });
+    assert.equal(result.isError, undefined, result.content[0].text);
+    assert.ok(key in JSON.parse(result.content[0].text), `${name} should return ${key}`);
+    console.log(`${name} ok`);
+  }
 }
 
 const bad = await client.callTool({ name: "search_youtube", arguments: {} });
 assert.equal(bad.isError, true);
+const badPage = await client.callTool({ name: "list_channel_posts", arguments: {} });
+assert.equal(badPage.isError, true);
 console.log("input validation ok");
 
 await client.close();

@@ -22,7 +22,7 @@
   <a href="./LICENSE"><img src="https://img.shields.io/badge/License-MIT-4CAF50?style=for-the-badge" alt="MIT License"/></a>
 </p>
 
-Eight tools, one hosted endpoint, no local install, for Claude, ChatGPT, Cursor, VS Code, Windsurf, and 15+ other MCP-compatible clients.
+Thirteen tools, one hosted endpoint, no local install, for Claude, ChatGPT, Cursor, VS Code, Windsurf, and 15+ other MCP-compatible clients.
 
 ```
 https://getyoutubetranscript.com/api/mcp
@@ -60,7 +60,7 @@ This repo root is also an [Agent Plugins 1.0.0](https://agent-plugins.org/specif
 ```text
 plugin.json                # plugin manifest
 mcp.json                   # hosted MCP server (streamable-http, OAuth, no key in the file)
-skills/youtube/SKILL.md    # when and how to use the 8 tools
+skills/youtube/SKILL.md    # when and how to use the 13 tools
 ```
 
 In VS Code, run **Chat: Install Plugin From Source** and paste `https://github.com/tubeagentkit/youtube-mcp`. Other clients that support Agent Plugins can point at this repo or a local clone. For Cursor there is a separate [plugin repo](https://github.com/tubeagentkit/youtube-transcript-cursor-plugin).
@@ -292,7 +292,7 @@ The agent calls `get_youtube_transcript` and summarizes the result. If you conne
 
 ## Run locally (stdio)
 
-Prefer a local process? [`server/`](./server) is an open-source stdio MCP server with the same 8 tools, built on the official MCP TypeScript SDK. It calls the public [REST API](https://getyoutubetranscript.com/docs) with your API key.
+Prefer a local process? [`server/`](./server) is an open-source stdio MCP server with the same 13 tools, built on the official MCP TypeScript SDK. It calls the public [REST API](https://getyoutubetranscript.com/docs) with your API key.
 
 ```sh
 git clone https://github.com/tubeagentkit/youtube-mcp
@@ -341,7 +341,7 @@ Both methods issue a token scoped and audience-bound to this specific MCP server
 
 ## Available Tools
 
-All eight tools are exposed automatically once you connect. **1 credit = 1 successful request.** Failed or rate-limited calls never consume credits.
+All thirteen tools are exposed automatically once you connect. **1 credit = 1 successful request.** Failed or rate-limited calls never consume credits.
 
 ### 1. `get_youtube_transcript`
 
@@ -404,7 +404,20 @@ Search within one specific channel's videos.
 
 ### 6. `list_channel_videos`
 
-List every video a channel has ever uploaded (the full `/videos` tab, not just recent ones).
+List a channel's uploads beyond its latest videos: older episodes, its most popular videos, its Shorts, or its past live streams.
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `channel` | string | required unless `continuation` set | `@handle`, channel URL, or `UC…` ID |
+| `tab` | string | optional | `videos` (default), `shorts`, or `streams` (the Live tab). First page only |
+| `sort` | string | optional | `latest` (default), `popular`, or `oldest`. First page only |
+| `continuation` | string | optional | Opaque token — fetches the next page |
+
+**Cost:** 1 credit/page.
+
+### 7. `list_channel_playlists`
+
+List the playlists a channel has published. Pass a playlist's `id` to `list_playlist_videos` to see its videos.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
@@ -413,7 +426,48 @@ List every video a channel has ever uploaded (the full `/videos` tab, not just r
 
 **Cost:** 1 credit/page.
 
-### 7. `list_playlist_videos`
+### 8. `list_channel_posts`
+
+List a channel's community posts: text, links, likes, comments and any attached image.
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `channel` | string | required unless `continuation` set | `@handle`, channel URL, or `UC…` ID |
+| `continuation` | string | optional | Opaque token — fetches the next page |
+
+**Cost:** 1 credit/page.
+
+### 9. `get_related_videos`
+
+The videos YouTube suggests next to a video, each with title, video ID, link, channel, views, age and length.
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `video_url` | string | **required** | YouTube URL (full or short) or an 11-character video ID |
+
+**Cost:** 1 credit.
+
+### 10. `get_channel_banner`
+
+A channel's uncropped banner, every crop size YouTube serves, and its avatar. `has_banner` is `false` when the channel has none.
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `channel` | string | **required** | `@handle`, channel URL, or `UC…` ID |
+
+**Cost:** 1 credit.
+
+### 11. `get_video_dislikes`
+
+A video's likes, dislikes, star rating and view count. YouTube no longer publishes dislikes, so these are estimates.
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `video_url` | string | **required** | YouTube URL (full or short) or an 11-character video ID |
+
+**Cost:** 1 credit.
+
+### 12. `list_playlist_videos`
 
 Get every video in a YouTube playlist.
 
@@ -424,7 +478,7 @@ Get every video in a YouTube playlist.
 
 **Cost:** 1 credit/page.
 
-### 8. `get_credits` <sub>· **FREE**</sub>
+### 13. `get_credits` <sub>· **FREE**</sub>
 
 Check the remaining credit balance for your key/account. No parameters.
 
@@ -508,13 +562,13 @@ hosted endpoint. The hosted endpoint and the REST API behind both are run by
 getyoutubetranscript.com and are not open source. To check either one yourself:
 
 - **Run the local server's live test** — `GYT_API_KEY=sk_live_... npm test --prefix server`
-  starts `server/index.js` over stdio, lists all 8 tools, and calls the free ones.
+  starts `server/index.js` over stdio, lists all 13 tools, and calls the free ones.
 - **Run [`verify.js`](./verify.js) against the hosted endpoint** — zero dependencies, zero auth required:
   ```sh
   node verify.js
   ```
   It performs the real MCP handshake (`initialize` then `tools/list`) against the live
-  endpoint and prints the server's actual response, including all 8 real tool schemas.
+  endpoint and prints the server's actual response, including all 13 real tool schemas.
   Tool *discovery* is public; only tool *calls* require an API key or OAuth token (see
   [Authentication](#authentication)).
 - **Independently verified by four third-party MCP directories**, each of which connected
